@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import '../services/eco_action_service.dart';
 import '../models/eco_action.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LogActionScreen extends StatefulWidget {
-  const LogActionScreen({Key? key}) : super(key: key);
+  const LogActionScreen({super.key});
 
   @override
   State<LogActionScreen> createState() => _LogActionScreenState();
@@ -28,8 +30,9 @@ class _LogActionScreenState extends State<LogActionScreen> {
   // Stub: In a real app, fetch from Supabase lookup_actions
   double _estimateCO2(String? category, String? action) {
     if (category == 'Transport' && action == 'Biked to work') return 2.5;
-    if (category == 'Transport' && action == 'Used public transport')
+    if (category == 'Transport' && action == 'Used public transport') {
       return 1.2;
+    }
     if (category == 'Waste' && action == 'No plastic use') return 0.5;
     if (category == 'Nature' && action == 'Planted a tree') return 21.0;
     return 1.0;
@@ -103,59 +106,122 @@ class _LogActionScreenState extends State<LogActionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Color mainGreen = AppTheme.primaryGreen;
+    final Color accentGreen = AppTheme.accentGreen;
+    final double borderRadius = AppTheme.borderRadius;
     return Scaffold(
-      appBar: AppBar(title: const Text('Log Eco Action')),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            DropdownButtonFormField<String>(
-              value: _selectedCategory,
-              items: _actionsByCategory.keys
-                  .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
-                  .toList(),
-              onChanged: _onCategoryChanged,
-              decoration: const InputDecoration(labelText: 'Category'),
+      backgroundColor: AppTheme.background,
+      appBar: AppBar(
+        title: Text(
+          'Log Eco Action',
+          style: GoogleFonts.nunito(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(28),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            decoration: BoxDecoration(
+              color: AppTheme.card,
+              borderRadius: BorderRadius.circular(borderRadius),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: _selectedAction,
-              items:
-                  (_selectedCategory != null
-                          ? _actionsByCategory[_selectedCategory!]
-                          : [])
-                      ?.map(
-                        (act) => DropdownMenuItem<String>(
-                          value: act,
-                          child: Text(act),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Log Eco Action',
+                  style: GoogleFonts.nunito(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: accentGreen,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  items: _actionsByCategory.keys
+                      .map(
+                        (cat) => DropdownMenuItem(
+                          value: cat,
+                          child: Text(cat, style: GoogleFonts.nunito()),
                         ),
                       )
-                      .toList()
-                      ?.cast<DropdownMenuItem<String>>(),
-              onChanged: _onActionChanged,
-              decoration: const InputDecoration(labelText: 'Action'),
+                      .toList(),
+                  onChanged: _onCategoryChanged,
+                  decoration: const InputDecoration(
+                    labelText: 'Category',
+                    prefixIcon: Icon(Icons.category_rounded),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedAction,
+                  items:
+                      (_selectedCategory != null
+                              ? _actionsByCategory[_selectedCategory!]
+                              : [])
+                          ?.map(
+                            (act) => DropdownMenuItem<String>(
+                              value: act,
+                              child: Text(act, style: GoogleFonts.nunito()),
+                            ),
+                          )
+                          .toList()
+                          .cast<DropdownMenuItem<String>>(),
+                  onChanged: _onActionChanged,
+                  decoration: const InputDecoration(
+                    labelText: 'Action',
+                    prefixIcon: Icon(Icons.eco_rounded),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _co2Controller,
+                  decoration: const InputDecoration(
+                    labelText: 'CO₂ Saved (kg)',
+                    prefixIcon: Icon(Icons.cloud_done_rounded),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 24),
+                if (_error != null) ...[
+                  Text(_error!, style: GoogleFonts.nunito(color: Colors.red)),
+                  const SizedBox(height: 12),
+                ],
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _onSave,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: accentGreen,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(borderRadius),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                            'Save',
+                            style: GoogleFonts.nunito(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _co2Controller,
-              decoration: const InputDecoration(labelText: 'CO₂ Saved (kg)'),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 24),
-            if (_error != null) ...[
-              Text(_error!, style: const TextStyle(color: Colors.red)),
-              const SizedBox(height: 12),
-            ],
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _onSave,
-                child: _isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text('Save'),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -5,9 +5,11 @@ import '../services/eco_action_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'log_action_screen.dart';
+import '../theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -89,25 +91,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Color mainGreen = AppTheme.primaryGreen;
+    final Color accentGreen = AppTheme.accentGreen;
+    final double borderRadius = AppTheme.borderRadius;
     return Scaffold(
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text('GreenSteps Dashboard'),
+        title: Text(
+          'GreenSteps',
+          style: GoogleFonts.nunito(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_circle),
+            icon: const Icon(Icons.account_circle_rounded),
             tooltip: 'Profile',
             onPressed: () {
               Navigator.pushNamed(context, '/profile');
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.leaderboard),
-            tooltip: 'Leaderboard',
-            onPressed: () {
-              Navigator.pushNamed(context, '/leaderboard');
-            },
-          ),
         ],
+        elevation: 0,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -120,28 +124,88 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(24.0),
                 children: [
+                  // Green Score Circular Progress
+                  Container(
+                    decoration: BoxDecoration(
+                      color: mainGreen.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(borderRadius),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            SizedBox(
+                              width: 120,
+                              height: 120,
+                              child: CircularProgressIndicator(
+                                value: (_score?.total ?? 0) / 100,
+                                strokeWidth: 12,
+                                backgroundColor: mainGreen.withOpacity(0.18),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  accentGreen,
+                                ),
+                              ),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Green',
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 18,
+                                    color: accentGreen,
+                                  ),
+                                ),
+                                Text(
+                                  'Score',
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 18,
+                                    color: accentGreen,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _score?.total.toStringAsFixed(1) ?? '0',
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: accentGreen,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Quick Actions (example, can be dynamic)
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text(
-                        'Green Score:',
-                        style: Theme.of(context).textTheme.titleLarge,
+                      _QuickActionCard(
+                        icon: Icons.directions_bike,
+                        label: 'Bike to work',
+                        color: accentGreen,
                       ),
-                      Text(
-                        _score?.total.toStringAsFixed(1) ?? '0',
-                        style: Theme.of(context).textTheme.displayMedium
-                            ?.copyWith(color: Colors.green[700]),
+                      _QuickActionCard(
+                        icon: Icons.recycling,
+                        label: 'Recycle',
+                        color: mainGreen,
                       ),
-                      const Icon(Icons.eco, color: Colors.green, size: 32),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  // Progress chart
+                  const SizedBox(height: 24),
+                  // Bar Chart
                   Container(
                     height: 180,
                     decoration: BoxDecoration(
-                      color: Colors.green[50],
-                      borderRadius: BorderRadius.circular(12),
+                      color: mainGreen.withOpacity(0.10),
+                      borderRadius: BorderRadius.circular(borderRadius),
                     ),
                     padding: const EdgeInsets.all(12),
                     child: BarChart(
@@ -162,9 +226,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               getTitlesWidget: (value, meta) {
                                 return Text(
                                   value.toStringAsFixed(0),
-                                  style: TextStyle(
+                                  style: GoogleFonts.nunito(
                                     fontSize: 12,
-                                    color: Colors.green[900] ?? Colors.black,
+                                    color: accentGreen,
                                   ),
                                 );
                               },
@@ -180,9 +244,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 );
                                 return Text(
                                   '${day.month}/${day.day}',
-                                  style: TextStyle(
+                                  style: GoogleFonts.nunito(
                                     fontSize: 10,
-                                    color: Colors.green[900] ?? Colors.black,
+                                    color: accentGreen,
                                   ),
                                 );
                               },
@@ -203,26 +267,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 24),
                   Text(
                     'Recent Actions',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: GoogleFonts.nunito(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: accentGreen,
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  if (_actions.isEmpty) const Text('No actions logged yet.'),
+                  if (_actions.isEmpty)
+                    Text('No actions logged yet.', style: GoogleFonts.nunito()),
                   ..._actions
                       .take(10)
                       .map(
                         (action) => Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(borderRadius),
+                          ),
+                          elevation: 2,
+                          margin: const EdgeInsets.symmetric(vertical: 6),
                           child: ListTile(
-                            leading: const Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
+                            leading: Icon(
+                              Icons.check_circle_rounded,
+                              color: accentGreen,
                             ),
-                            title: Text(action.actionType),
+                            title: Text(
+                              action.actionType,
+                              style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             subtitle: Text(
                               '${action.category} • ${action.timestamp.toLocal().toString().split(".")[0]}',
+                              style: GoogleFonts.nunito(),
                             ),
                             trailing: Text(
                               '+${action.co2Saved.toStringAsFixed(2)} kg',
-                              style: const TextStyle(color: Colors.green),
+                              style: GoogleFonts.nunito(
+                                color: accentGreen,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -231,14 +314,112 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ElevatedButton.icon(
                     onPressed: _onLogActionPressed,
                     icon: const Icon(Icons.add),
-                    label: const Text('Log Eco Action'),
+                    label: Text(
+                      'Log Eco Action',
+                      style: GoogleFonts.nunito(fontWeight: FontWeight.bold),
+                    ),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
+                      backgroundColor: accentGreen,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(borderRadius),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
+      bottomNavigationBar: _ModernBottomNav(),
+    );
+  }
+}
+
+class _QuickActionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  const _QuickActionCard({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 140,
+      height: 60,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.13),
+        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 28),
+          const SizedBox(width: 10),
+          Flexible(
+            child: Text(
+              label,
+              style: GoogleFonts.nunito(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModernBottomNav extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.card,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _NavIcon(icon: Icons.home_rounded, route: '/dashboard'),
+          _NavIcon(icon: Icons.add_circle_outline_rounded, route: '/log'),
+          _NavIcon(icon: Icons.leaderboard_rounded, route: '/leaderboard'),
+          _NavIcon(icon: Icons.account_circle_rounded, route: '/profile'),
+        ],
+      ),
+    );
+  }
+}
+
+class _NavIcon extends StatelessWidget {
+  final IconData icon;
+  final String route;
+  const _NavIcon({required this.icon, required this.route});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(icon, size: 30, color: AppTheme.accentGreen),
+      onPressed: () {
+        if (ModalRoute.of(context)?.settings.name != route) {
+          Navigator.pushNamed(context, route);
+        }
+      },
     );
   }
 }

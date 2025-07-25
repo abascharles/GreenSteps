@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({Key? key}) : super(key: key);
+  const OnboardingScreen({super.key});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -38,7 +40,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Color mainGreen = AppTheme.primaryGreen;
+    final Color accentGreen = AppTheme.accentGreen;
+    final double borderRadius = AppTheme.borderRadius;
     return Scaffold(
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -58,26 +64,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Container(
                           height: 200,
                           width: 200,
-                          color: Colors.green[100],
+                          decoration: BoxDecoration(
+                            color: mainGreen.withOpacity(0.13),
+                            borderRadius: BorderRadius.circular(borderRadius),
+                          ),
                           child: Center(
                             child: Icon(
                               Icons.eco,
                               size: 100,
-                              color: Colors.green[700],
+                              color: accentGreen,
                             ),
                           ),
                         ),
                         const SizedBox(height: 32),
                         Text(
                           page['title']!,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                          style: GoogleFonts.nunito(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: accentGreen,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           page['subtitle']!,
-                          style: Theme.of(context).textTheme.titleMedium,
+                          style: GoogleFonts.nunito(
+                            fontSize: 16,
+                            color: mainGreen,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -99,8 +114,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   height: 8,
                   decoration: BoxDecoration(
                     color: _currentPage == index
-                        ? Colors.green
-                        : Colors.green[200],
+                        ? accentGreen
+                        : mainGreen.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -119,7 +134,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       onPressed: () {
                         Navigator.pushNamed(context, '/login');
                       },
-                      child: const Text('Login'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: accentGreen,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(borderRadius),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: Text(
+                        'Login',
+                        style: GoogleFonts.nunito(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -129,7 +154,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       onPressed: () {
                         Navigator.pushNamed(context, '/signup');
                       },
-                      child: const Text('Sign Up'),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(borderRadius),
+                        ),
+                        side: BorderSide(color: mainGreen),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: Text('Sign Up', style: GoogleFonts.nunito()),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -138,7 +170,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       // Skip onboarding, go to dashboard (for demo)
                       Navigator.pushReplacementNamed(context, '/dashboard');
                     },
-                    child: const Text('Skip'),
+                    child: Text(
+                      'Skip',
+                      style: GoogleFonts.nunito(color: accentGreen),
+                    ),
                   ),
                 ],
               ),

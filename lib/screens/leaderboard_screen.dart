@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LeaderboardScreen extends StatefulWidget {
-  const LeaderboardScreen({Key? key}) : super(key: key);
+  const LeaderboardScreen({super.key});
 
   @override
   State<LeaderboardScreen> createState() => _LeaderboardScreenState();
@@ -55,40 +57,61 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Color accentGreen = AppTheme.accentGreen;
+    final double borderRadius = AppTheme.borderRadius;
     return Scaffold(
-      appBar: AppBar(title: const Text('Leaderboard')),
+      backgroundColor: AppTheme.background,
+      appBar: AppBar(
+        title: Text(
+          'Leaderboard',
+          style: GoogleFonts.nunito(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        elevation: 0,
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
           ? Center(
-              child: Text(_error!, style: const TextStyle(color: Colors.red)),
+              child: Text(
+                _error!,
+                style: GoogleFonts.nunito(color: Colors.red),
+              ),
             )
           : RefreshIndicator(
               onRefresh: _fetchLeaderboard,
               child: ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: _users.length,
-                separatorBuilder: (_, __) => const Divider(),
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final user = _users[index];
-                  return ListTile(
-                    leading: _buildTrophy(index),
-                    title: Text(
-                      (user['username'] != null &&
-                              user['username'].toString().trim().isNotEmpty)
-                          ? user['username']
-                          : (user['email'] ?? 'Unknown'),
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(borderRadius),
                     ),
-                    subtitle: Text(user['id'].toString()),
-                    trailing: Text(
-                      user['score']?.toString() ?? '0',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
+                    elevation: 2,
+                    child: ListTile(
+                      leading: _buildTrophy(index),
+                      title: Text(
+                        (user['username'] != null &&
+                                user['username'].toString().trim().isNotEmpty)
+                            ? user['username']
+                            : (user['email'] ?? 'Unknown'),
+                        style: GoogleFonts.nunito(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        user['id'].toString(),
+                        style: GoogleFonts.nunito(),
+                      ),
+                      trailing: Text(
+                        user['score']?.toString() ?? '0',
+                        style: GoogleFonts.nunito(
+                          fontWeight: FontWeight.bold,
+                          color: accentGreen,
+                        ),
                       ),
                     ),
-                    // Optionally show avatar if avatar_url exists
-                    // leading: user['avatar_url'] != null ? CircleAvatar(backgroundImage: NetworkImage(user['avatar_url'])) : null,
                   );
                 },
               ),

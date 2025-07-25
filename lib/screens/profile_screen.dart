@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/eco_action_service.dart';
 import '../models/eco_action.dart';
+import '../theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -113,98 +115,181 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Color mainGreen = AppTheme.primaryGreen;
+    final Color accentGreen = AppTheme.accentGreen;
+    final double borderRadius = AppTheme.borderRadius;
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      backgroundColor: AppTheme.background,
+      appBar: AppBar(
+        title: Text(
+          'Profile',
+          style: GoogleFonts.nunito(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        elevation: 0,
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
           ? Center(
-              child: Text(_error!, style: const TextStyle(color: Colors.red)),
+              child: Text(
+                _error!,
+                style: GoogleFonts.nunito(color: Colors.red),
+              ),
             )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 48,
-                    backgroundImage:
-                        _avatarUrl != null && _avatarUrl!.isNotEmpty
-                        ? NetworkImage(_avatarUrl!)
-                        : null,
-                    child: _avatarUrl == null || _avatarUrl!.isEmpty
-                        ? const Icon(Icons.person, size: 48)
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _email ?? '',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 24),
-                  Form(
-                    key: _formKey,
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppTheme.card,
+                      borderRadius: BorderRadius.circular(borderRadius),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
                     child: Column(
                       children: [
-                        TextFormField(
-                          controller: _usernameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Username',
-                          ),
-                          validator: (v) => v == null || v.trim().isEmpty
-                              ? 'Enter a username'
+                        CircleAvatar(
+                          radius: 48,
+                          backgroundImage:
+                              _avatarUrl != null && _avatarUrl!.isNotEmpty
+                              ? NetworkImage(_avatarUrl!)
+                              : null,
+                          child: _avatarUrl == null || _avatarUrl!.isEmpty
+                              ? const Icon(Icons.person, size: 48)
                               : null,
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _locationController,
-                          decoration: const InputDecoration(
-                            labelText: 'Location',
+                        Text(
+                          _email ?? '',
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: accentGreen,
                           ),
                         ),
                         const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _isSaving ? null : _saveProfile,
-                            child: _isSaving
-                                ? const CircularProgressIndicator()
-                                : const Text('Save'),
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: _usernameController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Username',
+                                  prefixIcon: Icon(
+                                    Icons.person_outline_rounded,
+                                  ),
+                                ),
+                                validator: (v) => v == null || v.trim().isEmpty
+                                    ? 'Enter a username'
+                                    : null,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _locationController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Location',
+                                  prefixIcon: Icon(Icons.location_on_rounded),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _isSaving ? null : _saveProfile,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: accentGreen,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        borderRadius,
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
+                                  ),
+                                  child: _isSaving
+                                      ? const CircularProgressIndicator(
+                                          color: Colors.white,
+                                        )
+                                      : Text(
+                                          'Save',
+                                          style: GoogleFonts.nunito(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 32),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Column(
-                        children: [
-                          Text(
-                            _totalActions.toString(),
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                          const Text('Actions'),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Text(
-                            _totalCO2.toStringAsFixed(1),
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                          const Text('CO₂ Saved (kg)'),
-                        ],
-                      ),
-                    ],
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: mainGreen.withOpacity(0.10),
+                      borderRadius: BorderRadius.circular(borderRadius),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              _totalActions.toString(),
+                              style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22,
+                                color: accentGreen,
+                              ),
+                            ),
+                            Text('Actions', style: GoogleFonts.nunito()),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              _totalCO2.toStringAsFixed(1),
+                              style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22,
+                                color: accentGreen,
+                              ),
+                            ),
+                            Text('CO₂ Saved (kg)', style: GoogleFonts.nunito()),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: _logout,
-                      icon: const Icon(Icons.logout),
-                      label: const Text('Logout'),
+                      icon: const Icon(Icons.logout, color: Colors.red),
+                      label: Text(
+                        'Logout',
+                        style: GoogleFonts.nunito(color: Colors.red),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(borderRadius),
+                        ),
+                        side: BorderSide(color: Colors.red.withOpacity(0.3)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
                     ),
                   ),
                 ],
